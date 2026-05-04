@@ -1,6 +1,7 @@
 package detect
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -15,6 +16,9 @@ func (d *Detector) DetectFiles(paths <-chan sources.ScanTarget) ([]report.Findin
 	for pa := range paths {
 		p := pa
 		d.Sema.Go(func() error {
+			if strings.Contains(p.Path, "..") {
+				return fmt.Errorf("invalid file path")
+			}
 
 			f, err := os.Open(p.Path)
 			if err != nil {
